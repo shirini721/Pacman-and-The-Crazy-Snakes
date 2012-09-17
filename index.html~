@@ -39,14 +39,6 @@ left: 0px;
         <div id="ball"></div>
 
 <script>
-/* RESOURCES USED:
-1. http://menscher.com/teaching/woaa/examples/html5_accelerometer.html
-2. http://www.html5canvastutorials.com/labs/html5-canvas-arc-crazy-snake/
-3. http://www.html5rocks.com/en/tutorials/device/orientation/deviceorientationsample.html
-4. Pacman shape: http://css-tricks.com/examples/ShapesOfCSS/
-*/
-
-
  window.requestAnimFrame = (function(callback) {
         return window.requestAnimationFrame 
         || window.webkitRequestAnimationFrame 
