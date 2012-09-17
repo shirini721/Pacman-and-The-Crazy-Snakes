@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Move the Ball</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<script src="http://debug.phonegap.com/target/target-script-min.js#accelerometer"></script>
+<style>
+#no {
+display: none;
+}
+#ball {
+  width: 0px;
+  height: 0px;
+  border-right: 20px solid transparent;
+  border-top: 20px solid yellow;
+  border-left: 20px solid yellow;
+  border-bottom: 20px solid yellow;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+position:absolute;
+top: 0px;
+left: 0px;
+}
+</style>
+</head>
+
+<body bgcolor="black">
+
+        <canvas id="myCanvas" style="width:100%;" height = 400></canvas>
+
+        <div id="ball"></div>
+
+<script>
+ window.requestAnimFrame = (function(callback) {
+        return window.requestAnimationFrame 
+        || window.webkitRequestAnimationFrame 
+        || window.mozRequestAnimationFrame 
+        || window.oRequestAnimationFrame 
+        || window.msRequestAnimationFrame 
+        || function(callback) {
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+      function getRandTheta() {
+        return Math.random() * 2 * Math.PI;
+      }
+var hx; 
+var hy; 
+    function updateSnake(canvas, snake) {
+        var maxVariance = 0.2;
+        var snakeSpeed = 200;
+        var segmentsPerSecond = snakeSpeed / snake.segmentLength;
+        var segments = snake.segments;
+        var time = (new Date()).getTime();
+        var timeDiff = (time - snake.lastUpdateTime);
+        if(timeDiff > 1000 / segmentsPerSecond) {
+          var head = segments[segments.length - 1];
+          var neck = segments[segments.length - 2];
+
+          var direction = snake.direction;
+          var newHeadX = head.x + direction.x * snake.segmentLength;
+          var newHeadY = head.y + direction.y * snake.segmentLength;
+
+          // change direction if collision occurs
+          if(newHeadX > canvas.width || newHeadX < 0) {
+            direction.x *= -1;
+          }
+          if(newHeadY > canvas.height || newHeadY < 0) {
+            direction.y *= -1;
+          }
+
+if (newHeadX > 0){
+ // document.getElementById('head').innerHTML = newHeadX;
+hx = newHeadX;
+ hy = newHeadY;
+}
+
+          // add new segment
+          segments.push({
+            x: newHeadX,
+            y: newHeadY
+          });
+
+          if(segments.length > snake.numSegments) {
+            segments.shift();
+          }
+
+          var variance = ((maxVariance / 2) - Math.random() * maxVariance);
+
+          direction.x += variance;
+          direction.y -= variance;
+
+          // update direction vector
+          if(direction.x > 1) {
+            direction.x = 1;
+          }
+          if(direction.x < -1) {
+            direction.x = -1;
+          }
+
+          // dampering - try to keep direction vectors around -0.5 and +0.5
+          direction.x *= Math.abs(direction.x) > 0.5 ? (1 - 0.01) : (1 + 0.01);
+          direction.y *= Math.abs(direction.y) > 0.5 ? (1 - 0.01) : (1 + 0.01);
+
+          snake.lastUpdateTime = time;
+        }
+      }
+      function animate(canvas, snake) {
+        var context = canvas.getContext('2d');
+
+        // update
+        updateSnake(canvas, snake);
+
+        // clear
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // draw
+        drawSnake(context, snake);
+
+        // request new frame
+        requestAnimFrame(function() {
+          animate(canvas, snake);
+        });
+      }
+      function drawSnake(context, snake) {
+        var segments = snake.segments;
+        var tail = segments[0];
+        context.beginPath();
+        context.moveTo(tail.x, tail.y);
+
+        for(var n = 1; n < segments.length; n++) {
+          var segment = segments[n];
+          context.lineTo(segment.x, segment.y);
+        }
+
+        context.lineWidth = 10;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+        context.strokeStyle = 'red';
+        context.stroke();
+      }
+
+var kq;
+var canvas; 
+
+     window.onload = function() {
+        canvas = document.getElementById('myCanvas');
+        var segmentLength = 2;
+        // px
+        var headX = canvas.width / 2;
+        var headY = canvas.height / 2;
+        snake = {
+          segmentLength: 2,
+          lastUpdateTime: 0,
+          numSegments: 50,
+          // moving to the right
+          direction: {
+            x: 1,
+            y: 0
+          },
+          segments: [{
+            // tail
+            x: headX + segmentLength,
+            y: headY
+          }, {
+            // head
+            x: headX,
+            y: headY
+       
+   }]
+        };
+//kq = snake.segments[1].x;
+        animate(canvas, snake);
+      };
+
+//head.innerHTML = headX;
+// Position Variables
+var x = 0;
+ // xd.innerHTML = x;
+var y = 0;
+
+// Speed - Velocity
+var vx = 0;
+var vy = 0;
+
+// Acceleration
+var ax = 0;
+var ay = 0;
+
+var delay = 10;
+var vMultiplier = 0.01;
+
+if (window.DeviceMotionEvent==undefined) {
+document.getElementById("no").style.display="block";
+document.getElementById("yes").style.display="none";
+
+} else {
+window.ondevicemotion = function(event) {
+ax = event.accelerationIncludingGravity.x;
+ay = event.accelerationIncludingGravity.y;
+console.log("Accelerometer data - x: " + event.accelerationIncludingGravity.x + " y: " + event.accelerationIncludingGravity.y + " z: " +event.accelerationIncludingGravity.z); 
+}
+
+setInterval(function() {
+vy = vy + -(ay);
+vx = vx + ax;
+
+var ball = document.getElementById("ball");
+y = parseInt(y + vy * vMultiplier);
+x = parseInt(x + vx * vMultiplier);
+//  xd.innerHTML = x;
+// document.getElementById('head').innerHTML = hx;
+  //   xd.innerHTML = x;
+
+var diff = Math.abs(hx - x);
+
+ //document.getElementById('dif').innerHTML = diff;
+
+if (Math.abs(hx - x) < 10  && Math.abs(hy - y) <10){
+
+alert("The Green Snake Got You! Play Again!");
+hx = 0;
+location.reload();
+}
+
+if (x<0) { x = 0; vx = 0; }
+
+if (y<0) { y = 0; vy = 0; }
+if (x>document.documentElement.clientWidth-30) { x = document.documentElement.clientWidth-30; vx = 0; }
+if (y>document.documentElement.clientHeight-30) { y = document.documentElement.clientHeight-30; vy = 0; }
+
+ball.style.top = y + "px";
+ball.style.left = x + "px";
+}, delay);
+} 
+
+
+function sn2(context) {
+var $ = this; // holder
+               this.headX = canvas.width / 2;
+        this.headY = canvas.height / 2;
+    this.segmentLength= 2;
+    this.lastUpdateTime= 0;
+    this.numSegments= 50;
+this.dirx = 1;
+this.diry = 0;
+/*
+ context.strokeStyle = "rgba(" + Math.floor( (Math.random()*255)+1 )+ "," + Math.floor((Math.random()*255)+1)+ "," + Math.floor((Math.random()*255)+1) + "," + Math.floor((Math.random()*255)+1) + ")"; //"green";
+*/
+this.segments =  [{x: this.headX + this.segmentLength, y: this.headY}, {x: this.headX, y: this.headY}];
+
+this.updateSnake = function(canvas){
+              var maxVariance = 0.2;
+                var snakeSpeed = 200; //px / s
+                var segmentsPerSecond = snakeSpeed / this.segmentLength;
+                var segments = this.segments;
+                var date = new Date();
+                var time = date.getTime();
+                var timeDiff = (time - this.lastUpdateTime);
+                if (timeDiff > 1000 / segmentsPerSecond) {
+                    var head = segments[segments.length - 1];
+                    var neck = segments[segments.length - 2];
+
+                    var direction = snake.direction;
+                    var newHeadX = head.x + this.dirx * this.segmentLength;
+                    var newHeadY = head.y + this.diry * this.segmentLength;
+
+                    // change direction if collision occurs
+                    if (newHeadX > canvas.width || newHeadX < 0) {
+                        this.dirx *= -1;
+                    }
+                    if (newHeadY > canvas.height || newHeadY < 0) {
+                        this.diry *= -1;
+                    }
+
+                    // add new segment
+                    segments.push({
+                        x: newHeadX,
+                        y: newHeadY
+                    });
+
+                    if (segments.length > snake.numSegments) {
+                        segments.shift();
+                    }
+
+                    var variance = ((maxVariance / 2) - Math.random() * maxVariance);
+
+                    this.dirx += variance;
+                    this.diry -= variance;
+
+                    // update direction vector
+                    if (this.dirx > 1) {
+                        this.dirx = 1;
+                    }
+                    if (this.dirx < -1) {
+                        this.dirx = -1;
+                    }
+
+                    // dampering - try to keep direction vectors around -0.5 and +0.5
+                    this.dirx *= Math.abs(this.dirx) > 0.5 ? (1 - 0.01) : (1 + 0.01);
+                    this.diry *= Math.abs(this.diry) > 0.5 ? (1 - 0.01) : (1 + 0.01);
+
+                    this.lastUpdateTime = time;
+                }
+
+};
+   this.drawSnake = function (context) {
+  var segments = this.segments;
+                var tail = segments[0];
+                context.beginPath();
+                context.moveTo(tail.x, tail.y);
+
+                for (var n = 1; n < segments.length; n++) {
+                    var segment = segments[n];
+                    context.lineTo(segment.x, segment.y);
+                }
+
+                context.lineWidth = 10;
+                context.lineCap = "round";
+                context.lineJoin = "round";
+ context.strokeStyle = "rgba(" + Math.floor( (Math.random()*255)+1 )+ "," + Math.floor((Math.random()*255)+1)+ "," + Math.floor((Math.random()*255)+1) + "," + Math.floor((Math.random()*255)+1) + ")"; //"green";
+
+
+context.stroke();
+
+    };
+
+   this.animate = function (canvas) {
+     $.updateSnake(canvas);
+//context.clearRect(0, 0, canvas.width, canvas.height);
+$.drawSnake(context);
+requestAnimFrame(function(){
+$.animate(canvas);
+
+
+});
+
+
+  };
+
+
+
+}
+
+ window.addEventListener('devicemotion', deviceMotionHandler3, false);
+function deviceMotionHandler3(eventData) {
+                var acceleration = eventData.accelerationIncludingGravity;
+                var rawAcceleration = "[" + Math.round(acceleration.x) + ", " + Math.round(acceleration.y) + ", " + Math.round(acceleration.z) + "]";
+                var facingUp = -1;
+                if (acceleration.z > 0) {
+                    facingUp = +1;
+                }
+                var tiltLR = Math.round(((acceleration.x) / 9.81) * -90);
+                var tiltFB = Math.round(((acceleration.y + 9.81) / 9.81) * 90 * facingUp);
+
+     // extract the accelerometer values for x, y and z axes
+         var accelerationX = event.accelerationIncludingGravity.x;
+             var accelerationY = event.accelerationIncludingGravity.y;
+                 var accelerationZ = event.accelerationIncludingGravity.z;
+
+
+                                         var redX = Math.min(255,(255-Math.abs(Math.round(accelerationX)) * 15)).toString(16);
+                                         var greenY = Math.min(255,(255-Math.abs(Math.round(accelerationY)) * 15)).toString(16);
+                                         var blueZ = Math.min(255,(255-Math.abs(Math.round(accelerationZ)) * 15)).toString(16);
+                                         var backgroundColor = "#" + redX + greenY + blueZ;
+                                         //document.body.style.background = backgroundColor;
+
+
+
+
+if (tiltLR > 40){
+var context2 = canvas.getContext("2d");
+
+
+var s2 = new sn2(context2);
+s2.animate(canvas);
+
+}
+
+
+
+            }
+
+</script>
+
+</body>
+</html>
